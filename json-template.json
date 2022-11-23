@@ -1,0 +1,22 @@
+{
+	"cpu": {
+		"processor": "11th Gen Intel(R) Core(TM) i5-11300H",
+		"baseclock": "3.10GHz",
+		"usage": "0.5"
+	},
+	"memory": {
+		"total": 4096,
+		"unused": 2048,
+		"usage": "0.5"
+	},
+	"disk0": {
+		"total": 2048,
+		"used": 1024,
+		"unused": 1024
+	},
+	"disk1": {
+		"total": 2048,
+		"used": 1024,
+		"unused": 1024
+	}
+}
