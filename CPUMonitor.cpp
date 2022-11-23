@@ -150,26 +150,33 @@ namespace CM {
         if (NULL == fp)
             spdlog::error("open /proc/cpuinfo failed");
 
-        char szTest[1024];
+        char buff[1024];
         std::string modelName;
         std::string cpuMhz;
+        //多核会冗余遍历多次，故findNum计数到两次时，表示都找到了，提前退出循环
+        std::atomic_int findNum{0};
         //read file line by line
         while (!feof(fp)) {
-            memset(szTest, 0, sizeof(szTest));
-            fgets(szTest, sizeof(szTest) - 1, fp);
+            memset(buff, 0, sizeof(buff));
+            fgets(buff, sizeof(buff) - 1, fp);
 
-            if (strncmp("model name", szTest, 9) == 0) {
-                std::string tmp(szTest);
+            if (strncmp("model name", buff, 9) == 0) {
+                std::string tmp(buff);
                 auto pos = tmp.find(":");
                 modelName = tmp.substr(pos + 1);
                 string_trimmed(modelName);
+                findNum++;
 //                spdlog::warn("find {}", modelName);
             }
-            if (strncmp("cpu MHZ", szTest, 6) == 0) {
-                std::string tmp(szTest);
+            if (strncmp("cpu MHZ", buff, 6) == 0) {
+                std::string tmp(buff);
                 cpuMhz = tmp.substr(tmp.find(":") + 1);
                 string_trimmed(cpuMhz);
+                findNum++;
             }
+
+            if(findNum == 2)
+                break;
         }
         fclose(fp);
         return std::tuple<std::string, std::string>(modelName, cpuMhz);
