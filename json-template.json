@@ -1,7 +1,7 @@
 {
 	"cpu": {
-		"processor": "11th Gen Intel(R) Core(TM) i5-11300H",
-		"baseclock": "3.10GHz",
+		"modelName": "11th Gen Intel(R) Core(TM) i5-11300H",
+		"baseClock": "3892.563",
 		"usage": "0.5"
 	},
 	"memory": {

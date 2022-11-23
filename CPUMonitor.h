@@ -26,16 +26,19 @@ namespace CM
 		std::string GetCpuUsage();
 		/**
 		 * @brief 获取处理器型号
-		 * @return
+		 * @return string
 		 */
-		std::string GetCpuProcessor();
+		std::string GetCPUModelName();
 		/**
 		 * @brief 获取CPU主频
+		 * 单位 MHZ
 		 * @return
 		 */
 		std::string GetCpuBaseClock();
 	 private:
 		std::unique_ptr<CPUPrivate> d_ptr;
+        std::string modelName;
+        std::string baseClock;
 	};
 
 

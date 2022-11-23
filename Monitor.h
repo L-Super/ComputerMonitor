@@ -39,6 +39,10 @@ namespace CM
 		json GetCPU();
 		json GetMemory();
 		json GetDisk();
+        /**
+         * @brief 获取cpu memory disk信息
+         * @return json
+         */
 		json GetInfoByJson();
 	 private:
 		template<typename T>

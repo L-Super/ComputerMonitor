@@ -7,7 +7,9 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(RaidMonitorServer main.cpp
         Monitor.cpp Monitor.h
         MemoryMonitor.cpp MemoryMonitor.h
-        CPUMonitor.cpp CPUMonitor.h DiskMonitor.cpp DiskMonitor.h Common.h)
+        CPUMonitor.cpp CPUMonitor.h
+        DiskMonitor.cpp DiskMonitor.h
+        Common.h)
 
 
 message(STATUS "path is = ${CMAKE_CURRENT_SOURCE_DIR}")
