@@ -32,5 +32,5 @@ FetchContent_MakeAvailable(spdlog)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE  -static-libstdc++ nlohmann_json::nlohmann_json spdlog::spdlog cppzmq-static)
 
-add_executable(Client ClientTest.cpp)
+add_executable(Client ClientTest.cpp raid_monitor_server.h)
 target_link_libraries(Client PRIVATE cppzmq-static)

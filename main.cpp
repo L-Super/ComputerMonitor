@@ -3,7 +3,7 @@
 #include <thread>
 #include "Monitor.h"
 #include "spdlog/spdlog.h"
-#include <sys/vfs.h>
+
 int main()
 {
 	using namespace std::chrono_literals;
@@ -39,13 +39,31 @@ int main()
 
 		spdlog::info("Received is '{}'", request.to_string());
 
-		if (request.to_string() == "request info")
+		if (request.to_string() == "RequestBaseInfo")
 		{
 			// send the reply to the client
 			auto data = monitor->GetInfoByJson().dump();
 			socket.send(zmq::buffer(data), zmq::send_flags::none);
 			spdlog::info("send data:{}", data);
 		}
+        else if(request.to_string() == "DisksOverview")
+        {
+            auto data = monitor->DiskInfoOverview().dump();
+            socket.send(zmq::buffer(data), zmq::send_flags::none);
+            spdlog::info("[DisksOverview]: send data:{}", data);
+        }
+        else if(request.to_string() == "DisksInfo")
+        {
+            auto data = monitor->DisksInfo().dump();
+            socket.send(zmq::buffer(data), zmq::send_flags::none);
+            spdlog::info("[DisksInfo]: send data:{}", data);
+        }
+        else if(request.to_string() == "DiskIO")
+        {
+            auto data = monitor->DiskInfoOverview().dump();
+            socket.send(zmq::buffer(data), zmq::send_flags::none);
+            spdlog::info("[DiskIO]: send data:{}", data);
+        }
 		else
 		{
 			spdlog::warn("Receive invalid request");

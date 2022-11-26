@@ -12,7 +12,6 @@
 #include <string>
 #include "nlohmann/json.hpp"
 
-#include "Common.h"
 #include "CPUMonitor.h"
 #include "DiskMonitor.h"
 #include "MemoryMonitor.h"
@@ -44,6 +43,20 @@ namespace CM
          * @return json
          */
 		json GetInfoByJson();
+
+        /**
+         * @brief 返回总容量和使用量
+         * 服务器规定json形式
+         * @return TB
+         */
+         json DiskInfoOverview();
+         /**
+          * @brief 返回各磁盘信息
+          * 服务器规定json形式
+          * 磁盘位置、磁盘容量TB、磁盘剩余空间TB、磁盘状态
+          * @return
+          */
+         json DisksInfo();
 	 private:
 		template<typename T>
 		using smart_ptr = std::unique_ptr<T>;

@@ -11,7 +11,7 @@
 
 namespace CM
 {
-	using ulong = unsigned long;
+	using type = unsigned long;
 
 	/**
 	 * @brief 内存结构体
@@ -43,14 +43,14 @@ namespace CM
 		MemoryPrivate() = default;
 		~MemoryPrivate() = default;
 		auto GetMemoryInfo();
-		ulong GetMemoryTotal();
-		ulong GetMemoryUnused();
+		type GetMemoryTotal();
+		type GetMemoryUnused();
 		auto GetMemoryUsage();
 
 	 private:
-		ulong totalMemory;
-		ulong usedMemory;
-		ulong freeMemory;
+		type totalMemory;
+		type usedMemory;
+		type freeMemory;
 	};
 
 	auto MemoryPrivate::GetMemoryInfo()
@@ -86,11 +86,11 @@ namespace CM
 		//other method
 #endif
 	}
-	ulong MemoryPrivate::GetMemoryTotal()
+	type MemoryPrivate::GetMemoryTotal()
 	{
 		return GetMemoryInfo().MemTotal;
 	}
-	ulong MemoryPrivate::GetMemoryUnused()
+	type MemoryPrivate::GetMemoryUnused()
 	{
 		return GetMemoryInfo().MemAvailable;
 	}

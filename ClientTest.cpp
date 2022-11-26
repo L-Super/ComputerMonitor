@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 #include <zmq.hpp>
+#include "raid_monitor_server.h"
 
 int main(int argc, char* argv[])
 {
@@ -32,7 +33,7 @@ int main(int argc, char* argv[])
 //	socket.connect("tcp://localhost:20777");
 	socket.connect(addr);
 	// set up some static data to send
-	const std::string data{ "request info" };
+	const std::string data{ argv[3] };
 	for (auto request_num = 0; request_num < 10; ++request_num)
 	{
 		// initialize a request message
@@ -50,5 +51,7 @@ int main(int argc, char* argv[])
 		using namespace std::chrono_literals;
 		std::this_thread::sleep_for(1s);
 	}
+
+//    std::cout<<"receive"<<request_data_from_raid("RequestBaseInfo")<<std::endl;
 	return 0;
 }

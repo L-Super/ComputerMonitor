@@ -4,6 +4,7 @@
 
 #include "Monitor.h"
 #include "spdlog/spdlog.h"
+#include "Common.h"
 
 #define USEDF_METHOD 1
 
@@ -11,8 +12,8 @@ namespace CM {
     Monitor::Monitor()
             :
             cpuMonitor(Factory::Create<CPUMonitor>()),
-            memMonitor(new MemoryMonitor()),
-            diskMonitor(new DiskMonitor()) {
+            memMonitor(Factory::Create<MemoryMonitor>()),
+            diskMonitor(Factory::Create<DiskMonitor>()) {
     }
 
     json Monitor::GetCPU() {
@@ -47,10 +48,10 @@ namespace CM {
         };
 #else
         json diskJson;
-        const int GB = 1024 * 1024;
+        const double GB = 1024 * 1024;
         auto disks = diskMonitor->GetDisksByDf();
         size_t num = 0;
-        for (auto &it: disks) {
+        for (const auto &it: disks) {
 //			spdlog::info("disk{} mounted on:{}", it.fileSystem, it.mounted);
             std::string name{"disk" + std::to_string(num)};
             diskJson[name] = {
@@ -76,6 +77,37 @@ namespace CM {
             return {};
 
         return result;
+    }
+
+    json Monitor::DiskInfoOverview() {
+        json diskJson;
+        diskJson["data"] = {
+                {"lastCount", diskMonitor->DiskTotalByDf()},
+                {"useCount",  diskMonitor->DiskUsedByDf()}
+        };
+        return diskJson;
+    }
+
+    json Monitor::DisksInfo() {
+        json disksJson, diskListJson;
+        auto disks = diskMonitor->GetDisksByDf();
+        const double TB{1024 * 1024 * 1024};
+        for (const auto &it: disks) {
+            json data;
+            data["diskPosition"] = it.mounted;
+            data["diskCapacity"] = std::to_string(it.blocks / TB);
+            data["diskSpace"] = std::to_string(it.available / TB);
+            data["diskState"] = 0;
+            data["testProgress"] = 1;
+            data["testResult"] = 1;
+            data["enable"] = true;
+            diskListJson["list"].push_back(data);
+        }
+
+        disksJson["data"] = {diskListJson,
+                             {"total", diskMonitor->DiskTotalByDf()}};
+
+        return disksJson;
     }
 
 } // CM

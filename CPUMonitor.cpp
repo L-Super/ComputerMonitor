@@ -185,9 +185,7 @@ namespace CM {
     CPUMonitor::CPUMonitor() noexcept
             : d_ptr(new CPUPrivate()) {
 //		auto future = std::async(std::launch::async, &CPUPrivate::RunCPUThread,d_ptr.get());
-        auto [modelName, cpuMhz] = d_ptr->GetCPUModelNameAndBaseClock();
-        this->modelName = modelName;
-        this->baseClock = cpuMhz;
+
     }
 
     //https://blog.csdn.net/no_say_you_know/article/details/127855984
