@@ -5,12 +5,12 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 namespace CM{
-	using type = double;
 	/**
  	* @brief df 结构体
  	* 磁盘信息
  	*/
 	struct DFStructInfo {
+        using type = double;
 		char fileSystem[80];
 		type blocks;
 		type used;

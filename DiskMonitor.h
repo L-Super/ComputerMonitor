@@ -10,6 +10,7 @@
 #include "Common.h"
 
 namespace CM {
+    using type = double;
     /**
      * @brief Disk class
      */

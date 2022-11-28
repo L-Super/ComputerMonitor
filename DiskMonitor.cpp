@@ -7,7 +7,6 @@
 #include <sys/statfs.h>
 
 namespace CM {
-
     class DiskPrivate {
     public:
         DiskPrivate() = default;
