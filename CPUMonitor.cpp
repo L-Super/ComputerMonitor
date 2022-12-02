@@ -168,7 +168,7 @@ namespace CM {
                 findNum++;
 //                spdlog::warn("find {}", modelName);
             }
-            if (strncmp("cpu MHZ", buff, 7) == 0) {
+            if (strncmp("cpu MHz", buff, 7) == 0) {
                 std::string tmp(buff);
                 cpuMhz = tmp.substr(tmp.find(":") + 1);
                 string_trimmed(cpuMhz);
