@@ -160,7 +160,7 @@ namespace CM {
             memset(buff, 0, sizeof(buff));
             fgets(buff, sizeof(buff) - 1, fp);
 
-            if (strncmp("model name", buff, 9) == 0) {
+            if (strncmp("model name", buff, 10) == 0) {
                 std::string tmp(buff);
                 auto pos = tmp.find(":");
                 modelName = tmp.substr(pos + 1);
@@ -168,7 +168,7 @@ namespace CM {
                 findNum++;
 //                spdlog::warn("find {}", modelName);
             }
-            if (strncmp("cpu MHZ", buff, 6) == 0) {
+            if (strncmp("cpu MHZ", buff, 7) == 0) {
                 std::string tmp(buff);
                 cpuMhz = tmp.substr(tmp.find(":") + 1);
                 string_trimmed(cpuMhz);
