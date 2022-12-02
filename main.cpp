@@ -60,7 +60,7 @@ int main()
         }
         else if(request.to_string() == "DiskIO")
         {
-            auto data = monitor->DiskInfoOverview().dump();
+            auto data = monitor->DisksIO().dump();
             socket.send(zmq::buffer(data), zmq::send_flags::none);
             spdlog::info("[DiskIO]: send data:{}", data);
         }

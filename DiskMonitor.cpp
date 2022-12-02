@@ -5,13 +5,15 @@
 #include "DiskMonitor.h"
 #include "spdlog/spdlog.h"
 #include <sys/statfs.h>
+#include <atomic>
+#include <thread>
 
 namespace CM {
     class DiskPrivate {
     public:
-        DiskPrivate() = default;
+        DiskPrivate();
 
-        ~DiskPrivate() = default;
+        ~DiskPrivate();
 
         auto DiskInfoByStatfs();
 
@@ -23,11 +25,33 @@ namespace CM {
 
         type GetDiskFree();
 
+        /**
+         * @brief 查询磁盘IO
+         * 使用iostat.系统可能需要安装sysstat
+         */
+        void DiskIO();
+
+        void DiskIOThread();
+
+    public:
+        std::atomic<double> diskReadIO;//磁盘读取IO速度
+        std::atomic<double> diskWriteIO;//磁盘写入IO速度
     private:
         type totalDisk;
         type usedDisk;
         type freeDisk;
+        std::atomic_bool ioThreadRunning{true};
+        std::thread ioThread;
     };
+
+    DiskPrivate::DiskPrivate() {
+        ioThread = std::thread(&DiskPrivate::DiskIOThread, this);
+    }
+
+    DiskPrivate::~DiskPrivate() {
+        ioThreadRunning.store(false);
+        ioThread.join();
+    }
 
     auto DiskPrivate::DiskInfoByStatfs() {
         struct statfs diskInfo;
@@ -67,7 +91,7 @@ namespace CM {
         while (6 == fscanf(fp, "%s %lf %lf %lf %s %s", fileSystem, &blocks, &used, &available, useRate, mountedOn)) {
 //			spdlog::info("Filesystem:{} 1K-blocks:{} Used:{} Available:{} Use%:{} Mounted on:{}",
 //				fileSystem, blocks, used, available, useRate, mountedOn);
-            if (strncmp("/dev/", fileSystem, 4) == 0) {
+            if (strncmp("/dev/", fileSystem, 5) == 0) {
 //				spdlog::info("find {} disk", fileSystem);
                 strcpy(dfDisk.fileSystem, fileSystem);
                 dfDisk.blocks = blocks;
@@ -96,6 +120,67 @@ namespace CM {
     type DiskPrivate::GetDiskFree() {
         DiskInfoByStatfs();
         return freeDisk;
+    }
+
+    void DiskPrivate::DiskIO() {
+        //查看系统中硬盘的使用情况,每隔一秒查询两次
+        //第一次输出的数据是系统从启动以来直到统计时的所有传输信息，第二次输出的数据，才代表在指定检测时间段内系统的传输值。
+        char cmd[] = "iostat -d 1 2";
+        char buffer[1024];
+        char devName[20];
+        double data[8];
+        bzero(data, sizeof(data));
+
+        FILE *pipe = popen(cmd, "r");
+
+        if (!pipe) {
+            spdlog::error("run iostat failed");
+        }
+
+        //Linux 5.10.102.1-microsoft-standard-WSL2 (DESKTOP-LMR)  12/02/22        _x86_64_        (12 CPU)
+        fgets(buffer, sizeof(buffer) - 1, pipe);
+        //
+        fgets(buffer, sizeof(buffer) - 1, pipe);
+        //Device             tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd
+        fgets(buffer, sizeof(buffer) - 1, pipe);
+
+        std::atomic_bool secondTime{false};//第二次遇到Device
+        std::atomic<double> readIO{0};//磁盘读取IO速度
+        std::atomic<double> writeIO{0};//磁盘写入IO速度
+
+        //过滤第一次
+        while (fgets(buffer, sizeof(buffer) - 1, pipe) != NULL) {
+            //Device tps kB_read/s kB_wrtn/s kB_dscd/s kB_read kB_wrtn kB_dscd
+            sscanf(buffer, "%s %lf %lf %lf %lf %lf %lf %lf", devName, &data[0], &data[1], &data[2], &data[3], &data[4],
+                   &data[5], &data[6]);
+
+            spdlog::warn("{} {} {} {} {} {} {}", devName, data[0], data[1], data[2], data[3], data[4], data[5],
+                         data[6]);
+            if (secondTime.load() == false && strncmp("Device", devName, 6) == 0) {
+//                spdlog::warn("second title {}", buffer);
+                secondTime.store(true);
+                continue;
+            }
+            if (secondTime.load() == true && strncmp("Device", devName, 6) != 0) {
+                //std::atomic<double>不支持fetch_add()
+                std::atomic<double> tmp{readIO.load() + data[1]};
+                readIO.exchange(tmp);
+                tmp.store(writeIO.load() + data[2]);
+                writeIO.exchange(tmp);
+//                spdlog::error("IO {} {}", readIO, writeIO);
+            }
+        }
+        this->diskReadIO.store(readIO);
+        this->diskWriteIO.store(writeIO);
+
+        pclose(pipe);
+    }
+
+    void DiskPrivate::DiskIOThread() {
+        while (ioThreadRunning) {
+            DiskIO();
+        }
+        spdlog::warn("IO thread quit");
     }
 
     DiskMonitor::DiskMonitor() noexcept
@@ -138,5 +223,9 @@ namespace CM {
             used += it.used / TB;
         }
         return used;
+    }
+
+    std::tuple<double, double> DiskMonitor::GetDiskIO() {
+        return std::make_tuple(d_ptr->diskReadIO.load(), d_ptr->diskWriteIO.load());
     }
 } // CM

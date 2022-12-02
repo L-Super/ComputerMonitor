@@ -61,6 +61,13 @@ namespace CM {
          */
         std::vector<DFStructInfo> GetDisksByDf();
 
+        /**
+         * @brief 获取磁盘IO
+         *  kB_read/s    kB_writen/s
+         * @return
+         */
+        std::tuple<double, double> GetDiskIO();
+
     private:
         std::unique_ptr<DiskPrivate> d_ptr;
         const double TB{1024 * 1024 * 1024};

@@ -110,4 +110,14 @@ namespace CM {
         return disksJson;
     }
 
+    json Monitor::DisksIO() {
+        json ioJson;
+        auto [read, write] = diskMonitor->GetDiskIO();
+        ioJson["data"] = {
+                {"writeIo", write},
+                {"readIo", read}
+        };
+        return ioJson;
+    }
+
 } // CM

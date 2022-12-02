@@ -57,6 +57,13 @@ namespace CM
           * @return
           */
          json DisksInfo();
+         /**
+          * @brief 返回磁盘IO读写
+          * 服务器规定json形式
+          * 单位KB/s
+          * @return
+          */
+         json DisksIO();
 	 private:
 		template<typename T>
 		using smart_ptr = std::unique_ptr<T>;
