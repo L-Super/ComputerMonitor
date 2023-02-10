@@ -81,38 +81,4 @@ std::string request_disk_io_from_raid()
     return request_data_from_raid("DiskIO");
 }
 
-//the class deprecated
-class RaidMonitor {
-    [[deprecated]]
-    RaidMonitor() :
-            context(1),
-            socket(context, ZMQ_REQ) {
-
-    }
-
-    RaidMonitor(const std::string &ip, const std::string &port) {
-        connect_raid_server(ip, port);
-    }
-
-    void connect_raid_server(const std::string &ip, const std::string &port) {
-        std::string addr = {"tcp://" + ip + ":" + port};
-        socket.connect(addr);
-    }
-
-    std::string request_info_from_raid() {
-        const std::string data{"request info"};
-        zmq::message_t request{data};
-
-        socket.send(request, zmq::send_flags::none);
-
-        zmq::message_t reply{};
-        socket.recv(reply, zmq::recv_flags::none);
-        return reply.to_string();
-    }
-
-private:
-    zmq::context_t context;
-    zmq::socket_t socket;
-};
-
 #endif //RAIDMONITORSERVER_RAID_MONITOR_SERVER_H
