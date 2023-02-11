@@ -1,0 +1,14 @@
+[Unit]
+Description=monitor deamon of python version app 
+After=rc-local.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/root/monitor
+ExecStart=/root/monitor/monitor
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
