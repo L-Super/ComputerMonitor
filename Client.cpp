@@ -18,6 +18,7 @@ void no_block_socket(const std::string& addr, const std::string& msg)
 	// construct a REQ (request) socket and connect to interface
 	zmq::socket_t socket{context, zmq::socket_type::req};
 	// 在关闭套接字时等待发送的消息的时间，以避免 recv() 函数阻塞。这将导致在关闭套接字时立即丢弃任何未发送的消息，而不等待它们被传输。
+	// 当 ZMQ_LINGER 选项设置为一个正整数（例如1000）时，代表在关闭连接时，等待这个数值指定的毫秒数，以确保所有未发送的数据都能被发送。
 	socket.setsockopt(ZMQ_LINGER, 0);
 
 	socket.connect(addr);
