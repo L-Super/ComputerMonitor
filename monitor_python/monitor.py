@@ -91,10 +91,12 @@ def disk_info():
         if part.mountpoint[0:5] == "/ftp/":
             # print("/ftp/ {}".format(part.mountpoint[0:5]))
             continue
+        if part.mountpoint[0:6] == "/data/":
+            continue
 
         usage = psutil.disk_usage(part.mountpoint)
 
-        disk = [part.mountpoint, round(usage.total / TB, 2), round(usage.free / TB, 2), round(usage.used / TB, 2)]
+        disk = [part.mountpoint, usage.total / TB, usage.free / TB, usage.used / TB]
         disklist.append(disk)
 
     return disklist
@@ -198,9 +200,11 @@ def get_raid_disk_info():
         status = 0 if d.get("Firmware state") == "Online, Spun Up" else 1
         progress = 1
         result = 0
+        aver_used_disk = disk_all_total()[1] / 4
+        aver_free_disk = round(float(capacity) - aver_used_disk, 3)
         re_list.append({"diskPosition": position,
                         "diskCapacity": capacity,
-                        "diskSpace": "",
+                        "diskSpace": str(aver_free_disk),
                         "diskState": status,
                         "testProgress": progress,
                         "testResult": result,
@@ -227,8 +231,8 @@ class Monitor:
         # lastCount 总容量 useCount 已用容量
         data = json.dumps({
             "data": {
-                "lastCount": disk[0],
-                "useCount": disk[1]
+                "lastCount": round(disk[0], 2),
+                "useCount": round(disk[1], 2)
             }})
 
         return data
@@ -240,7 +244,7 @@ class Monitor:
         data = json.dumps({
             "data": {
                 "list": d,
-                "total": disk_all_total()[0]
+                "total": round(disk_all_total()[0], 2)
             }
         })
         return data
